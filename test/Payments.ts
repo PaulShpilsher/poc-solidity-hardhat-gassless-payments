@@ -5,6 +5,7 @@ import {
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { arrayify} from "@ethersproject/bytes";
 
 import type { Payments } from "../typechain-types";
 
@@ -36,15 +37,19 @@ describe("Payments", function () {
       [receiver.address, amount, nonce, paymentsAddress]
     );
 
-    console.log("hhash -->", hash);
+    // console.log("hhash -->", hash);
 
-    console.log(
-      "chash -->",
-      ethers.solidityPackedKeccak256(
-        ["string", "bytes32"],
-        ["\x19Ethereum Signed Message:\n32", hash]
-      )
-    );
+    // console.log(
+    //   "chash -->",
+    //   ethers.solidityPackedKeccak256(
+    //     ["string", "bytes32"],
+    //     ["\x19Ethereum Signed Message:\n32", hash]
+    //   )
+    // );
+
+    const messageHashBinary = arrayify(hash);
+    const signature = await owner.signMessage(messageHashBinary);
+    console.log("signature -->", signature);
 
     const r = await payments.connect(receiver).claim(amount, nonce);
     console.log("rhash -->", r);
