@@ -1,4 +1,6 @@
-# Gassless payments POC Hardhat Project
+# POC: Solidity Gassless payments with Hardhat
+
+see Payments.sol
 
 ```shell
 npx hardhat help
