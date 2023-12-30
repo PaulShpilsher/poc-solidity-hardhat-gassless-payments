@@ -22,44 +22,33 @@ contract Payments {
         uint256 amount,
         uint256 nonce,
         bytes memory signature
-    )
-        external
-        view
-        returns (
-            // bytes memory signature
-            bytes32
-        )
-    {
-        // require(
-        //     nonces[nonce] == false,
-        //     "You can't claim twice with the same nonce"
-        // );
-        // nonces[nonce] == true;
+    ) external {
+        require(
+            nonces[nonce] == false,
+            "You can't claim twice with the same nonce"
+        );
+        nonces[nonce] == true;
 
         bytes32 message = MessageHashUtils.toEthSignedMessageHash( // keccak256("\x19Ethereum Signed Message:\n32", hash)
             keccak256(
                 abi.encodePacked(msg.sender, amount, nonce, address(this))
             )
         );
-        // bytes32 message = withPrefix(
-        //     keccak256(
-        //         abi.encodePacked(msg.sender, amount, nonce, address(this))
-        //     )
-        // );
 
         require(
             recoverSigner(message, signature) == owner,
             "Invalid signature"
         );
 
-        return message;
+        payable(msg.sender).transfer(amount);
     }
 
     function recoverSigner(
         bytes32 message,
         bytes memory signature
     ) private pure returns (address) {
-        return address(0); //MessageHashUtils.recover(message, signature);
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(signature);
+        return ecrecover(message, v, r, s);
     }
 
     function splitSignature(
@@ -75,8 +64,6 @@ contract Payments {
             // final byte (first byte of the next 32 bytes)
             v := byte(0, mload(add(sig, 96)))
         }
-
-
     }
 
     // function withPrefix(bytes32 hash) private pure returns (bytes32) {
