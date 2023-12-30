@@ -2,10 +2,9 @@ import {
   time,
   loadFixture,
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { arrayify} from "@ethersproject/bytes";
+import { arrayify } from "@ethersproject/bytes";
 
 import type { Payments } from "../typechain-types";
 
@@ -49,9 +48,10 @@ describe("Payments", function () {
 
     const messageHashBinary = arrayify(hash);
     const signature = await owner.signMessage(messageHashBinary);
-    console.log("signature -->", signature);
+    // console.log("signature -->", signature);
 
-    const r = await payments.connect(receiver).claim(amount, nonce);
-    console.log("rhash -->", r);
+    const tx = await payments.connect(receiver).claim(amount, nonce, signature);
+    await tx.wait();
+    expect(tx).to.changeEtherBalance(receiver, amount);
   });
 });
